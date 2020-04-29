@@ -39,13 +39,14 @@ import os
 import sys
 import argparse
 import numpy as np
+import pandas as pd
 from PIL import Image, ImageFilter, ImageChops
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim import Adam
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset, ConcatDataset
 import torchvision.transforms as transforms
 from skimage.segmentation import slic
 from lime import lime_image
@@ -61,7 +62,8 @@ import shap
 
 args = {
       'ckptpath': './model.torch',
-      'dataset_dir': './food-11/'
+      'dataset_dir': sys.argv[1] if len(sys.argv) > 1 else './food-11/',
+      'output_dir': sys.argv[2] if len(sys.argv) > 2 else '.'
 }
 args = argparse.Namespace(**args)
 
@@ -296,7 +298,7 @@ for row, target in enumerate([images, saliencies]):
         # - 第 1 個 dimension 為原本 img 的第 2 個 dimension，也就是 width
         # - 第 2 個 dimension 為原本 img 的第 0 個 dimension，也就是 channels
 
-plt.savefig('saliency.pdf')
+plt.savefig(os.path.join(args.output_dir, 'saliency.pdf'))
 plt.show()
 plt.close()
 # 從第二張圖片的 saliency，我們可以發現 model 有認出蛋黃的位置
@@ -405,7 +407,7 @@ for cid, fid in filter_indices:
         img = normalize(img)
         axs[1][i].imshow(img)
         
-    plt.savefig(f'filter_{cid}_{fid}.pdf')
+    plt.savefig(os.path.join(args.output_dir, f'filter_{cid}_{fid}.pdf'))
     plt.show()
     plt.close()
     # 從下面四張圖可以看到，activate 的區域對應到一些物品的邊界，尤其是顏色對比較深的邊界,
@@ -463,7 +465,7 @@ for idx, (image, label) in enumerate(zip(images.permute(0, 2, 3, 1).numpy(), lab
     lime_img = cv2.cvtColor(lime_img.astype(np.float32), cv2.COLOR_RGB2BGR)
     axs[idx].imshow(lime_img)
 
-plt.savefig('lime.pdf')
+plt.savefig(os.path.join(args.output_dir, 'lime.pdf'))
 plt.show()
 plt.close()
 # 從以下前三章圖可以看到，model 有認出食物的位置，並以該位置為主要的判斷依據
@@ -489,7 +491,7 @@ test_numpy = np.swapaxes(np.swapaxes(test_images.numpy(), 1, -1), 1, 2)
 test_numpy = np.array([cv2.cvtColor(img.astype(np.float32), cv2.COLOR_RGB2BGR) for img in test_numpy])
 
 shap.image_plot(shap_numpy, test_numpy)
-plt.savefig('shap.pdf')
+plt.savefig(os.path.join(args.output_dir, 'shap.pdf'))
 
 
 # In[14]:
@@ -579,15 +581,89 @@ for i, j in enumerate(img_indices):
     img_deep_dream = DeepDream(img).deepDreamProcess()
     img_deep_dream = np.asarray(img_deep_dream)
     axs[1].imshow(cv2.cvtColor(img_deep_dream, cv2.COLOR_RGB2BGR))
-    plt.savefig(f'dream_{j}.pdf')
+    plt.savefig(os.path.join(args.output_dir, f'dream_{j}.pdf'))
     plt.show()
     plt.close()
 
 
-# In[ ]:
+# In[16]:
 
 
+class ImgDataset(Dataset):
+    def __init__(self, x, y=None, transform=None):
+        self.x = x
+        # label is required to be a LongTensor
+        self.y = y
+        if y is not None:
+            self.y = torch.LongTensor(y)
+        self.transform = transform
+    def __len__(self):
+        return len(self.x)
+    def __getitem__(self, index):
+        X = self.x[index]
+        if self.transform is not None:
+            X = self.transform(X)
+        if self.y is not None:
+            Y = self.y[index]
+            return X, Y
+        else:
+            return X
+test_transform = transforms.Compose([
+    transforms.ToPILImage(),                                    
+    transforms.ToTensor(),
+])
 
+
+# In[17]:
+
+
+valid_x, valid_y = readfile(os.path.join(args.dataset_dir, "validation"), True)
+
+
+# In[18]:
+
+
+model_best = torch.load('model_confusion.torch')
+
+test_set = ImgDataset(valid_x, transform=test_transform)
+test_loader = DataLoader(test_set, batch_size=64, shuffle=False)
+
+model_best.eval()
+prediction = []
+with torch.no_grad():
+    for i, data in enumerate(test_loader):
+        test_pred = model_best(data.cuda())
+        test_label = np.argmax(test_pred.cpu().data.numpy(), axis=1)
+        for y in test_label:
+            prediction.append(y)
+
+
+# In[19]:
+
+
+n = len(valid_y)
+
+tmp = np.zeros((11, 11))
+for i in range(n):
+    tmp[prediction[i],valid_y[i]] += 1
+
+mat = np.zeros((11,11))
+for i in range(11):
+    for j in range(11):
+        if tmp[i][j] == 0:
+            continue
+        mat[i,j] = 2 * tmp[i,j] / (tmp.sum(1)[j] + tmp.sum(0)[i])
+
+fig, ax = plt.subplots(figsize=(10,10))
+cax = ax.matshow(mat, cmap=plt.get_cmap('Blues'))
+fig.colorbar(cax)
+ax.set_xticks(range(11))
+ax.set_yticks(range(11))
+for (i, j), z in np.ndenumerate(mat):
+     ax.text(j, i, '{:0.4f}'.format(z), ha='center', va='center')
+#     ax.text(j, i, '{:0.4f}'.format(z), ha='center', va='center',
+#             bbox=dict(boxstyle='round', facecolor='white', edgecolor='0.3'))
+plt.savefig(os.path.join(args.output_dir, 'confusion.pdf'))
 
 
 # In[ ]:
