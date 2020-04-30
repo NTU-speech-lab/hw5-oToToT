@@ -3,3 +3,7 @@ food-11.zip
 model.torch
 model_confusion.torch
 .ipynb_checkpoints
+report.aux
+report.log
+report.synctex.gz
+report.out

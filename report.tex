@@ -1,0 +1,233 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[left=1.8cm, right=1.8cm, top=1cm, bottom=2cm]{geometry}
+\usepackage{xeCJK}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{fancyhdr}
+% \usepackage[compact]{titlesec}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\renewcommand{\figurename}{圖}
+
+\setCJKmainfont{NotoSansCJKtc-Thin}
+\setmonofont{Consolas}
+
+\definecolor{CodeGreen}{rgb}{0,0.6,0}
+\definecolor{CodeGray}{rgb}{0.5,0.5,0.5}
+\definecolor{CodeMauve}{rgb}{0.58,0,0.82}
+\lstset{
+    basicstyle = \ttfamily\footnotesize, 
+    breakatwhitespace = false,
+    breaklines = true,         
+    commentstyle = \color{CodeGreen}\bfseries,
+    extendedchars = false,
+    keepspaces=true,
+    keywordstyle=\color{blue}\bfseries, % keyword style
+    language = C++,                     % the language of code
+    otherkeywords={string},
+    numbers=none,
+    numbersep=5pt,
+    numberstyle=\tiny\color{CodeGray},
+    rulecolor=\color{black},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    stepnumber=1,       
+    stringstyle=\color{CodeMauve},        % string literal style
+    tabsize=2,
+}
+% from https://blog.csdn.net/RobertChenGuangzhi/article/details/45126785
+
+\title{Machine Learning 2020 - Homework 5 Report}
+\author{學號：b08902100, 系級：資工一, 姓名：江昱勳}
+\date{}
+
+\begin{document}
+\pagestyle{fancy}
+\fancyhead[L]{Machine Learning 2020 - Homework 5}
+\fancyhead[R]{Author: b08902100 江昱勳}
+
+\maketitle
+
+% \verbatiminput{HW2_S.txt}
+% \lstinputlisting{HW2.cpp}
+
+\begin{enumerate}
+
+\item 從作業三可以發現，使用 CNN 的確有些好處，試繪出其 saliency maps，觀察模型在做 classification 時，是 focus 在圖片的哪些部份？
+
+\begin{figure}[ht]
+    \center
+    \includegraphics[width=.8\textwidth]{saliency.pdf}
+    \caption{saliency maps}
+    \label{fig:saliency}
+\end{figure}
+
+從圖\ref{fig:saliency}可以看到CNN多數關注的物體都與他想觀察的內容有高度相關，例如第二章甜點的圖，其關注的點就較集中於中間點新的部分，而最右邊牡蠣的部分CNN也較關注在牡蠣本身而忽略其外部的盤子與湯等。
+
+\item 承(1) 利用上課所提到的 gradient ascent 方法，觀察特定層的 filter 最容易被哪種圖片 activate 與觀察 filter 的 output。
+
+以下挑了一些第二層的filter來觀察，可以看到第二層的filter對於顏色或紋路有較高的辨識能力，例如：圖\ref{fig:filter_2_46}可以看出會對於瓷器(光亮白色的)部分較敏感、圖\ref{fig:filter_2_30}可以看出其對於深色較敏感、圖\ref{fig:filter_2_45}則能夠把我自行pad上去的黑色邊框去除、圖\ref{fig:filter_2_25}可以看出類似披薩或是餅乾的紋路能有較高的辨識力、圖\ref{fig:filter_2_29}對於淺色且有紋路的部分較能辨識。
+
+\begin{figure}[H]
+\begin{minipage}{.3\textwidth}
+    \center
+    \includegraphics[width=\textwidth]{filter_2_25.pdf}
+\end{minipage}
+\hspace{-20pt}
+\begin{minipage}{.75\textwidth}
+    \center
+    \includegraphics[width=\textwidth]{filter_2_25_result.pdf}
+\end{minipage}
+\caption{filter (2, 25)}
+\label{fig:filter_2_25}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{.3\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_27.pdf}
+    \end{minipage}
+    \hspace{-20pt}
+    \begin{minipage}{.75\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_27_result.pdf}
+    \end{minipage}
+    \caption{filter (2, 27)}
+    \label{fig:filter_2_27}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{.3\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_28.pdf}
+    \end{minipage}
+    \hspace{-20pt}
+    \begin{minipage}{.75\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_28_result.pdf}
+    \end{minipage}
+    \caption{filter (2, 28)}
+    \label{fig:filter_2_28}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{.3\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_29.pdf}
+    \end{minipage}
+    \hspace{-20pt}
+    \begin{minipage}{.75\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_29_result.pdf}
+    \end{minipage}
+    \caption{filter (2, 29)}
+    \label{fig:filter_2_29}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{.3\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_30.pdf}
+    \end{minipage}
+    \hspace{-20pt}
+    \begin{minipage}{.75\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_30_result.pdf}
+    \end{minipage}
+    \caption{filter (2, 30)}
+    \label{fig:filter_2_30}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{.3\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_45.pdf}
+    \end{minipage}
+    \hspace{-20pt}
+    \begin{minipage}{.75\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_45_result.pdf}
+    \end{minipage}
+    \caption{filter (2, 45)}
+    \label{fig:filter_2_45}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{minipage}{.3\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_46.pdf}
+    \end{minipage}
+    \hspace{-20pt}
+    \begin{minipage}{.75\textwidth}
+        \center
+        \includegraphics[width=\textwidth]{filter_2_46_result.pdf}
+    \end{minipage}
+    \caption{filter (2, 46)}
+    \label{fig:filter_2_46}
+\end{figure}
+
+\newpage
+
+\item 請使用 Lime 套件分析你的模型對於各種食物的判斷方式，並解釋為何你的模型在某些 label 表現得特別好。
+
+(以下的LIME圖片藍色為對輸出帶有負向影響，綠色對輸出帶有正向影響)
+
+觀察圖\ref{fig:LIME}中最左邊與最右邊的部分，可以看到其可以很好的辨識出正確的物品，也就代表其標為綠色的部分皆為該圖片中物體的所在位置，然而也可以發現中間的兩個圖片的中心都會對圖片造成負面的影響，搭配 Confusion Matrix (圖\ref{fig:confusion}) 可以猜測其有可能會因為白色的圖案將物品誤認成蛋製品或是奶製品等，不過儘管其綠色的部份還是較多是在正確的位置上，表示其仍有一定的能力辨認物體。
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{lime.pdf}
+    \caption{LIME}
+    \label{fig:LIME}
+\end{figure}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=.75\textwidth]{confusion.pdf}
+    \caption{confusion matrix}
+    \label{fig:confusion}
+\end{figure}
+
+\item {[自由發揮]} 請同學自行搜尋或參考上課曾提及的內容，實作任一種方式來觀察 CNN 模型的訓練，並說明你的實作方法及呈現 visualization 的結果。
+
+嘗試使用Deep Dream方式強化model辨識到的內容，例如從圖\ref{fig:dream_9081}或圖\ref{fig:dream_8729}可以看到其在湯的內容加入了非常多無法理解的紋路，可見其對於model內湯的部份有一定的辨識能力，而圖\ref{fig:dream_88}甚至可以些微的看出其稍微增加了一些火腿的分量，可以發現model在真的有學到一些關於披薩的知識，從圖\ref{fig:dream_89}也可以看到其在另外一個盤子內似乎增加了一些物體在內。
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{dream_9081.pdf}
+    \caption{Deep Dream of 9081}
+    \label{fig:dream_9081}
+\end{figure}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{dream_8729.pdf}
+    \caption{Deep Dream of 8729}
+    \label{fig:dream_8729}
+\end{figure}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{dream_88.pdf}
+    \caption{Deep Dream of 88}
+    \label{fig:dream_88}
+\end{figure}
+
+\begin{figure}[H]
+    \center
+    \includegraphics[width=\textwidth]{dream_89.pdf}
+    \caption{Deep Dream of 89}
+    \label{fig:dream_89}
+\end{figure}
+
+\end{enumerate}
+
+\end{document}
