@@ -1,5 +1,5 @@
 \documentclass[a4paper,11pt]{article}
-\usepackage[left=1.8cm, right=1.8cm, top=1cm, bottom=2cm]{geometry}
+\usepackage[left=1.8cm, right=1.8cm, top=2.5cm, bottom=2cm]{geometry}
 \usepackage{xeCJK}
 \usepackage{subcaption}
 \usepackage{hyperref}
@@ -71,6 +71,9 @@
 \end{figure}
 
 從圖\ref{fig:saliency}可以看到CNN多數關注的物體都與他想觀察的內容有高度相關，例如第二章甜點的圖，其關注的點就較集中於中間點新的部分，而最右邊牡蠣的部分CNN也較關注在牡蠣本身而忽略其外部的盤子與湯等。
+
+
+\newpage
 
 \item 承(1) 利用上課所提到的 gradient ascent 方法，觀察特定層的 filter 最容易被哪種圖片 activate 與觀察 filter 的 output。
 
@@ -191,7 +194,7 @@
 
 \begin{figure}[H]
     \center
-    \includegraphics[width=.75\textwidth]{confusion.pdf}
+    \includegraphics[width=.5\textwidth]{confusion.pdf}
     \caption{confusion matrix}
     \label{fig:confusion}
 \end{figure}
