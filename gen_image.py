@@ -393,6 +393,7 @@ for cid, fid in filter_indices:
 
     # 畫出 filter visualization
     plt.imshow(normalize(filter_visualization.permute(1, 2, 0)))
+    plt.savefig(os.path.join(args.output_dir, f'filter_{cid}_{fid}.pdf'))
     plt.show()
     plt.close()
     # 根據圖片中的線條，可以猜測第 15 層 cnn 其第 0 個 filter 可能在認一些線條、甚至是 object boundary
@@ -407,7 +408,7 @@ for cid, fid in filter_indices:
         img = normalize(img)
         axs[1][i].imshow(img)
         
-    plt.savefig(os.path.join(args.output_dir, f'filter_{cid}_{fid}.pdf'))
+    plt.savefig(os.path.join(args.output_dir, f'filter_{cid}_{fid}_result.pdf'))
     plt.show()
     plt.close()
     # 從下面四張圖可以看到，activate 的區域對應到一些物品的邊界，尤其是顏色對比較深的邊界,
